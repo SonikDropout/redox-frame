@@ -3,7 +3,6 @@ byte pumpInPins[2] = {2, 4};
 byte pumpEnPins[1] = {3};
 byte stirrerInPins[2] = {5, 7};
 byte stirrerEnPins[1] = {6};
-byte ledPin = 9;
 
 void setup() {
   // put your setup code here, to run once:
@@ -26,9 +25,6 @@ void loop() {
     switch (peripheralID) {
       case 'P':
         setPumpPower(power);
-        break;
-      case 'L':
-        setLedPower(power);
         break;
       case 'S':
         setStirrerPower(power);
@@ -58,10 +54,6 @@ void setStirrerPower(int power) {
     enableMotors(pumpInPins);
     setMotorSpeed(power, stirrerEnPins);
   }
-}
-
-void setLedPower(int power) {
-  analogWrite(ledPin, power);
 }
 
 void enableMotors(byte pins[4]) {
