@@ -70,7 +70,7 @@ void disableMotors(byte pins[4]) {
 }
 
 void setMotorSpeed(int speed, byte pins[2]) {
-  speed = map(speed, 0, 100, 32, 255);
+  speed = map(speed, 0, 100, 64, 255);
   analogWrite(pins[1], speed);
   analogWrite(pins[0], speed);
 }
