@@ -1,5 +1,7 @@
+import re
 import tkinter as tk
 from tkinter import ttk
+from typing import final
 from serial import Serial
 from serial.tools import list_ports
 
@@ -16,7 +18,7 @@ class App(tk.Frame):
 
         self.serial = Serial()
         self.scales = []
-        self.ports = list(map(lambda port: port.name, list_ports.comports()))
+        self.ports = self.get_port_list()
         self.is_connected = False
 
         label = ttk.Label(self, text="Select port")
@@ -35,9 +37,12 @@ class App(tk.Frame):
         for peripheral in ['Pump', 'Stirrer']:
             self.create_scale(peripheral)
 
+    def get_port_list(self):
+        return list(map(lambda port: port.name, list_ports.grep('2341:8037')))
+
     def update_port_list(self):
         self.disconnect_from_port()
-        self.ports = list(map(lambda port: port.name, list_ports.comports()))
+        self.ports = self.get_port_list()
         self.portSelector.set('')
         self.portSelector['values'] = self.ports
 
@@ -62,21 +67,28 @@ class App(tk.Frame):
     def disconnect_from_port(self):
         try:
             self.reset_all_values()
+        except:
+            pass
+        finally:
             self.serial.close()
             self.is_connected = False
             self.connectButton.configure(text="Connect")
-        except:
-            pass
+            for scale in self.scales:
+                scale['state'] = tk.DISABLED
 
     def create_scale(self, peripheralName):
-        scale = tk.Scale(self, from_=0, to=100, label=peripheralName, orient=tk.HORIZONTAL,
-                         length=300, command=self.create_serial_sender(peripheralName[:1]))
+        variable = tk.StringVar(self, '0')
+        send_to_serial = self.create_serial_sender(peripheralName[:1], variable)
+        label = tk.Label(self, text=peripheralName)
+        label.grid(sticky=tk.W)
+        scale = tk.Spinbox(self, from_=0, to=100, width=42, textvariable=variable, command=send_to_serial)
         scale.grid(columnspan=3)
+        scale.bind('<Return>', send_to_serial)
         scale['state'] = 'disabled'
         self.scales.append(scale)
 
-    def create_serial_sender(self, commandID):
-        return lambda num: self.serial.write(bytes(commandID + num + '\n', 'ascii'))
+    def create_serial_sender(self, commandID, variable):
+        return lambda *args: self.serial.write(bytes(commandID + variable.get() + '\n', 'ascii'))
 
     def reset_all_values(self):
         for cmd in ['P', 'L', 'S']:
