@@ -1,12 +1,14 @@
 
-byte pumpInPins[2] = {2, 4};
+const byte pumpInPins[2] = {2, 4};
 byte pumpEnPins[1] = {3};
 byte stirrerInPins[2] = {5, 7};
 byte stirrerEnPins[1] = {6};
+byte externalControlPin = 5;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  pinMode(externalControlPin, INPUT);
   for (int i = 0; i < 4; ++i) {
     pinMode(pumpInPins[i], OUTPUT);
     pinMode(stirrerInPins[i], OUTPUT);
@@ -34,6 +36,7 @@ void loop() {
         break;
     }
   }
+  setPumpPower(analogRead(externalControlPin));
 }
 
 void setPumpPower(int power) {
