@@ -1,9 +1,9 @@
 
-const byte pumpInPins[2] = {2, 4};
-byte pumpEnPins[1] = {3};
-byte stirrerInPins[2] = {5, 7};
-byte stirrerEnPins[1] = {6};
-byte externalControlPin = 5;
+const byte pumpInPins[2] = {PD2, PD3};
+byte pumpEnPins[1] = {A0};
+byte stirrerInPins[2] = {PD4, PD5};
+byte stirrerEnPins[1] = {A1};
+byte externalControlPin = A2;
 
 void setup() {
   // put your setup code here, to run once:
