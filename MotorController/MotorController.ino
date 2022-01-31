@@ -4,16 +4,17 @@ byte pumpEnPins[1] = {A0};
 byte stirrerInPins[2] = {PD4, PD5};
 byte stirrerEnPins[1] = {A1};
 byte externalControlPin = A2;
+bool isSerialInput = false;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(externalControlPin, INPUT);
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < sizeof(pumpInPins); ++i) {
     pinMode(pumpInPins[i], OUTPUT);
     pinMode(stirrerInPins[i], OUTPUT);
   }
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < sizeof(pumpEnPins); ++i) {
     pinMode(pumpEnPins[i], OUTPUT);
     pinMode(stirrerEnPins[i], OUTPUT);
   }
@@ -24,6 +25,7 @@ void loop() {
     String incomingCommand = Serial.readStringUntil('\n');
     int power = incomingCommand.substring(1).toInt();
     char peripheralID = incomingCommand.charAt(0);
+    isSerialInput = (bool)power;
     switch (peripheralID) {
       case 'P':
         setPumpPower(power);
@@ -35,8 +37,9 @@ void loop() {
         Serial.write("ERROR!");
         break;
     }
+  } else if (!isSerialInput) {
+    setPumpPower(map(analogRead(externalControlPin), 0, 1023, 0, 100));
   }
-  setPumpPower(analogRead(externalControlPin));
 }
 
 void setPumpPower(int power) {
